@@ -8,8 +8,8 @@ A modern Laravel 11 + Filament 3 development environment powered by Docker. Incl
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/YOUR-USERNAME/laravel-filament-docker-template.git
-cd laravel-filament-docker-template
+git clone https://github.com/dgpatterson/laravel-filament-docker-template.git your-project-name
+cd your-project-name
 ```
 
 ### 2. Build and start the containers
