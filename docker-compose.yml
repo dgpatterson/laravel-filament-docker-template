@@ -1,83 +1,85 @@
 services:
-  app:
-    build:
-      context: ./docker/php
-      dockerfile: Dockerfile
-    container_name: app
-    working_dir: /var/www/html
-    volumes:
-      - ./:/var/www/html
-    networks:
-      - laravel
-    depends_on:
-      - db
-    environment:
-      - APP_ENV=local
-      - PHP_MEMORY_LIMIT=512M
+    app:
+        build:
+            context: ./docker/php
+            dockerfile: Dockerfile
+        container_name: ${APP_NAME:-app}_app
+        working_dir: /var/www/html
+        volumes:
+            - ./:/var/www/html
+        networks:
+            - laravel
+        depends_on:
+            - db
+        environment:
+            - APP_ENV=local
+            - PHP_MEMORY_LIMIT=512M
 
-  web:
-    image: nginx:stable-alpine
-    container_name: web
-    ports:
-      - "80:80"
-    volumes:
-      - ./:/var/www/html
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - app
-    networks:
-      - laravel
+    web:
+        image: nginx:stable-alpine
+        container_name: ${APP_NAME:-app}_web
+        ports:
+            - "80:80"
+        volumes:
+            - ./:/var/www/html
+            - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+        depends_on:
+            - app
+        networks:
+            - laravel
 
-  db:
-    image: mysql:8.0
-    container_name: db
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_ROOT_PASSWORD: secret
-      MYSQL_USER: laravel
-      MYSQL_PASSWORD: secret
-    volumes:
-      - db_data:/var/lib/mysql
-    networks:
-      - laravel
+    db:
+        image: mysql:8.0
+        container_name: ${APP_NAME:-app}_db
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_DATABASE: laravel
+            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_USER: laravel
+            MYSQL_PASSWORD: secret
+        volumes:
+            - db_data:/var/lib/mysql
+        networks:
+            - laravel
 
-  mailhog:
-    image: mailhog/mailhog
-    container_name: mailhog
-    ports:
-      - "8025:8025"
-    networks:
-      - laravel
+    mailhog:
+        image: mailhog/mailhog
+        container_name: ${APP_NAME:-app}_mailhog
+        ports:
+            - "8025:8025"
+        networks:
+            - laravel
 
-  queue:
-    build:
-      context: ./docker/php
-    container_name: queue
-    command: php artisan queue:work
-    volumes:
-      - ./:/var/www/html
-    depends_on:
-      - db
-    networks:
-      - laravel
+    queue:
+        build:
+            context: ./docker/php
+            dockerfile: Dockerfile
+        container_name: ${APP_NAME:-app}_queue
+        command: php artisan queue:work
+        volumes:
+            - ./:/var/www/html
+        depends_on:
+            - db
+        networks:
+            - laravel
 
-  scheduler:
-    build:
-      context: ./docker/php
-    container_name: scheduler
-    command: php artisan schedule:work
-    volumes:
-      - ./:/var/www/html
-    depends_on:
-      - db
-    networks:
-      - laravel
+    scheduler:
+        build:
+            context: ./docker/php
+            dockerfile: Dockerfile
+        container_name: ${APP_NAME:-app}_scheduler
+        command: php artisan schedule:work
+        volumes:
+            - ./:/var/www/html
+        depends_on:
+            - db
+        networks:
+            - laravel
 
 volumes:
-  db_data:
+    db_data:
 
 networks:
-  laravel:
-    driver: bridge
+    laravel:
+        driver: bridge
